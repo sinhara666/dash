@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DashBuilder AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --border: #1e1e2e;
+  --accent: #00ffaa;
+  --purple: #7c3aed;
+  --text: #e8e8f0;
+  --muted: #555570;
+  --danger: #ff4466;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── MODAL ── */
+#modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(6px);
+}
+
+#modal.hide { display: none; }
+
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  width: 92%;
+  max-width: 400px;
+}
+
+.modal-box h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.modal-box h2 span { color: var(--accent); }
+
+.modal-box p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-box a { color: var(--accent); }
+
+#keyInput {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  margin-bottom: 14px;
+  display: block;
+}
+
+#keyInput:focus { border-color: var(--accent); }
+
+#saveBtn {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: block;
+}
+
+#saveBtn:hover { opacity: 0.9; }
+
+.modal-err {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.logo { font-size: 18px; font-weight: 800; }
+.logo span { color: var(--accent); }
+
+.change-key {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.change-key:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── MAIN ── */
+.main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── CHAT ── */
+.chat {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  transition: width 0.3s;
+}
+
+.chat.split { width: 45%; }
+
+.msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.msgs::-webkit-scrollbar { width: 3px; }
+.msgs::-webkit-scrollbar-thumb { background: var(--border); }
+
+.bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 88%;
+  animation: pop 0.25s ease;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bubble.ai {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px 12px 12px 12px;
+  align-self: flex-start;
+}
+
+.bubble.ai .who {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 5px;
+}
+
+.bubble.user {
+  background: var(--purple);
+  border-radius: 12px 3px 12px 12px;
+  align-self: flex-end;
+  color: #fff;
+}
+
+.bubble.status {
+  background: transparent;
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+  border-radius: 8px;
+  align-self: flex-start;
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px 12px 12px 12px;
+  align-self: flex-start;
+  width: fit-content;
+}
+
+.dots span {
+  width: 6px; height: 6px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: bounce 1.2s infinite;
+}
+
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); background: var(--accent); }
+}
+
+/* ── INPUT ── */
+.input-wrap {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+#msgInput {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  min-height: 44px;
+  max-height: 120px;
+  line-height: 1.5;
+}
+
+#msgInput:focus { border-color: var(--accent); }
+#msgInput::placeholder { color: var(--muted); }
+
+.icon-btn {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+.icon-btn.active { background: var(--danger); border-color: var(--danger); color: #fff; animation: pulse 1s infinite; }
+.icon-btn.send { background: var(--accent); border-color: var(--accent); color: #000; }
+.icon-btn.send:hover { opacity: 0.85; }
+.icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,68,102,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255,68,102,0); }
+}
+
+/* ── STATUS ── */
+.statusbar {
+  padding: 5px 20px;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.statusbar.on { color: var(--accent); }
+
+/* ── PREVIEW ── */
+.preview {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  min-height: 0;
+}
+
+.preview.show { display: flex; }
+
+.preview-top {
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.preview-top span {
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.export-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.export-btn:hover { opacity: 0.85; }
+
+#frame {
+  flex: 1;
+  border: none;
+  background: #fff;
+}
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="modal-box">
+    <h2>Dash<span>Builder</span> AI</h2>
+    <p>Enter your free Groq API key to start building. Get one at <a href="https://console.groq.com" target="_blank">console.groq.com</a> — takes 2 minutes. Your key never leaves your browser.</p>
+    <input id="keyInput" type="password" placeholder="gsk_..." autocomplete="off" />
+    <div class="modal-err" id="keyErr">Please enter a valid Groq key</div>
+    <button id="saveBtn" onclick="saveKey()">Let's Build →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Dash<span>Builder</span> AI</div>
+  <button class="change-key" onclick="showModal()">⚙ Key</button>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="chat" id="chat">
+    <div class="msgs" id="msgs"></div>
+    <div class="statusbar" id="statusbar">Ready</div>
+    <div class="input-wrap">
+      <div class="input-row">
+        <textarea id="msgInput" placeholder="Tell me what to build..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+        <button class="icon-btn" id="micBtn" onclick="mic()" title="Voice">🎤</button>
+        <button class="icon-btn send" id="sendBtn" onclick="send()">➤</button>
+      </div>
+    </div>
+  </div>
+  <div class="preview" id="preview">
+    <div class="preview-top">
+      <span>Preview</span>
+      <button class="export-btn" onclick="exportHTML()">⬇ Export HTML</button>
+    </div>
+    <iframe id="frame"></iframe>
+  </div>
+</div>
+
+<script>
+var KEY = localStorage.getItem('groq_key') || '';
+var history = [];
+var builtHTML = '';
+var building = false;
+var recog = null;
+var recording = false;
+
+var SYSTEM = `You are DashBuilder AI. Help users build custom HTML dashboards through friendly conversation.
+
+Steps:
+1. Ask what kind of dashboard (personal, business, student, etc.)
+2. Ask what sections/widgets they want (tasks, habits, goals, journal, tracker, budget, notes, etc.) - encourage 4-8 sections
+3. Ask the name and color preferences (dark or light theme, favorite colors)
+4. Ask what the built-in AI assistant inside should help with
+5. After 3-5 messages, when you have enough info, output the build command
+
+When ready, output ONLY this — nothing else before or after:
+BUILD_DASHBOARD:{"title":"...","subtitle":"...","tabs":["Section1","Section2","Section3","Section4","Section5"],"primaryColor":"#hex","accentColor":"#hex","bgColor":"#0d0d1a","aiPurpose":"...","aiSystemPrompt":"..."}
+
+Rules:
+- bgColor: dark (#0d0d1a or #111118) unless user wants light
+- tabs: 4-8 relevant sections
+- Be warm, fast. Max 2 questions at a time. Build fast once you have the info.`;
+
+// Init
+window.addEventListener('load', function() {
+  if (KEY) {
+    hideModal();
+    greet();
+  }
+});
+
+function showModal() {
+  document.getElementById('modal').classList.remove('hide');
+}
+
+function hideModal() {
+  document.getElementById('modal').classList.add('hide');
+}
+
+function saveKey() {
+  var val = document.getElementById('keyInput').value.trim();
+  var err = document.getElementById('keyErr');
+  if (!val || val.length < 10) {
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+  KEY = val;
+  localStorage.setItem('groq_key', val);
+  hideModal();
+  if (document.getElementById('msgs').children.length === 0) greet();
+}
+
+// Allow Enter key in modal
+document.getElementById('keyInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') saveKey();
+});
+
+function greet() {
+  bubble('ai', "Hey! I'm DashBuilder. What kind of dashboard do you want to build? Think personal life, business, student planner, client tracker — anything goes.");
+}
+
+function bubble(role, text) {
+  var msgs = document.getElementById('msgs');
+  var d = document.createElement('div');
+  d.className = 'bubble ' + role;
+  if (role === 'ai') {
+    d.innerHTML = '<div class="who">DashBuilder</div>' + text;
+  } else {
+    d.textContent = text;
+  }
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function typing() {
+  var msgs = document.getElementById('msgs');
+  var d = document.createElement('div');
+  d.className = 'dots';
+  d.id = 'typing';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function clearTyping() {
+  var t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function status(text, on) {
+  var s = document.getElementById('statusbar');
+  s.textContent = text;
+  s.className = on ? 'statusbar on' : 'statusbar';
+}
+
+async function send() {
+  var input = document.getElementById('msgInput');
+  var text = input.value.trim();
+  if (!text || building) return;
+
+  // Check if user pasted a BUILD command directly
+  if (text.startsWith('BUILD_DASHBOARD:')) {
+    input.value = '';
+    input.style.height = 'auto';
+    try {
+      var cfg = JSON.parse(text.replace('BUILD_DASHBOARD:', '').trim());
+      bubble('user', 'Build my dashboard');
+      bubble('ai', 'Got it! Building now...');
+      await build(cfg);
+    } catch(e) { bubble('ai', 'Could not parse that build command. Try describing what you want instead.'); }
+    return;
+  }
+
+  bubble('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  history.push({ role: 'user', content: text });
+
+  document.getElementById('sendBtn').disabled = true;
+  typing();
+  status('Thinking...', true);
+
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 2000,
+        messages: [{ role: 'system', content: SYSTEM }, ...history]
+      })
+    });
+
+    var data = await res.json();
+    clearTyping();
+
+    if (data.error) {
+      bubble('ai', 'API Error: ' + data.error.message);
+      status('Error');
+      document.getElementById('sendBtn').disabled = false;
+      return;
+    }
+
+    var reply = data.choices[0].message.content.trim();
+    history.push({ role: 'assistant', content: reply });
+
+    if (reply.indexOf('BUILD_DASHBOARD:') !== -1) {
+      var jsonStr = reply.replace('BUILD_DASHBOARD:', '').trim();
+      try {
+        var cfg = JSON.parse(jsonStr);
+        bubble('ai', 'Building your ' + cfg.title + ' now...');
+        status('Building...', true);
+        building = true;
+        await build(cfg);
+        building = false;
+        history = []; // reset for next build
+        status('Done! Export when ready.');
+      } catch(e) {
+        bubble('ai', 'Build config had an issue. Can you describe what you want again?');
+        status('Error');
+      }
+    } else {
+      bubble('ai', reply);
+      status('Ready');
+    }
+  } catch(e) {
+    clearTyping();
+    bubble('ai', 'Connection error. Check your API key and internet connection.');
+    status('Error');
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+}
+
+async function build(cfg) {
+  var prompt = `Build a premium single-file HTML dashboard. Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown fences, no explanation.
+
+Title: ${cfg.title}
+Subtitle: ${cfg.subtitle || 'Your personal dashboard'}
+Colors: background=${cfg.bgColor}, primary=${cfg.primaryColor}, accent=${cfg.accentColor}
+Sections to build: ${cfg.tabs.join(', ')}
+
+LAYOUT:
+- Fixed left sidebar (200px): logo/title at top, nav links for each section, dark bg
+- Right main area scrollable: show ALL sections as widget cards in a 2-3 col CSS grid
+- Sidebar nav links scroll smoothly to each section card
+
+DESIGN - must look like a $200 premium template:
+- Google Font: Outfit (import from Google Fonts)
+- CSS variables for colors
+- Section cards: rounded corners, subtle border, 20px padding, dark card bg
+- Each section header has a relevant emoji + title
+- Buttons use accent color, hover effects
+- Smooth transitions on all interactive elements
+- Decorative touches: gradient accent bars on card headers, subtle shadows
+
+SECTIONS - each must be interactive:
+- Tasks/Todo: checkbox list with strike-through, add item input, delete button, localStorage save
+- Habits: daily checkboxes with streak counter, localStorage save
+- Goals: list with progress % and progress bar, localStorage save
+- Journal/Notes: textarea + save button + list of saved entries, localStorage save
+- Trackers: metric with +/- buttons and progress bar, localStorage save
+- Any other sections: relevant interactive widgets, localStorage save
+
+DO NOT add any chat button, AI panel, or any script calling any API. That gets added separately.
+Close all HTML tags. End file with </body></html>.`;
+
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 32000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    var data = await res.json();
+    if (data.error) { bubble('ai', 'Build error: ' + data.error.message); return; }
+
+    var html = data.choices[0].message.content;
+    // Strip markdown fences
+    html = html.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
+    // Inject working AI chat
+    var chat = buildChat(cfg);
+    html = html.replace('</body>', chat + '\n</body>');
+    if (html.indexOf('</body>') === -1) html += chat;
+
+    builtHTML = html;
+
+    // Show preview
+    document.getElementById('preview').classList.add('show');
+    document.getElementById('chat').classList.add('split');
+    document.getElementById('frame').srcdoc = html;
+
+    bubble('ai', '✅ ' + cfg.title + ' is ready! Click Export HTML to download it and upload to GitHub.');
+  } catch(e) {
+    bubble('ai', 'Build failed. Try again.');
+    building = false;
+  }
+}
+
+function buildChat(cfg) {
+  return `
+<style>
+#_fab{position:fixed;bottom:20px;right:20px;background:${cfg.accentColor};color:#000;border:none;border-radius:50px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;z-index:9000;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+#_fab:hover{opacity:.9;}
+#_panel{position:fixed;right:-410px;top:0;width:380px;height:100%;background:#0d0d1a;border-left:1px solid #1e1e2e;z-index:8999;display:flex;flex-direction:column;transition:right .3s ease;box-shadow:-6px 0 30px rgba(0,0,0,.5);}
+#_panel.open{right:0;}
+#_ph{padding:14px 18px;background:#111118;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;justify-content:space-between;}
+#_ph strong{color:#fff;font-size:14px;}
+#_pc{cursor:pointer;background:none;border:none;color:#666;font-size:18px;padding:4px 8px;}
+#_pc:hover{color:#fff;}
+#_pm{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
+#_pm::-webkit-scrollbar{width:3px;}
+#_pm::-webkit-scrollbar-thumb{background:#1e1e2e;}
+._m{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.5;max-width:88%;font-family:sans-serif;}
+._m.u{background:${cfg.accentColor};color:#000;align-self:flex-end;border-radius:10px 2px 10px 10px;}
+._m.a{background:#1a1a2e;color:#e8e8f0;border:1px solid #1e1e2e;align-self:flex-start;border-radius:2px 10px 10px 10px;}
+#_pi{padding:12px;border-top:1px solid #1e1e2e;background:#111118;display:flex;gap:8px;}
+#_pi input{flex:1;background:#0d0d1a;border:1px solid #1e1e2e;color:#e8e8f0;padding:10px 12px;border-radius:8px;font-size:13px;outline:none;font-family:sans-serif;}
+#_pi input:focus{border-color:${cfg.accentColor};}
+#_pi button{background:${cfg.accentColor};color:#000;border:none;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px;}
+#_pi button:hover{opacity:.85;}
+</style>
+<button id="_fab" onclick="document.getElementById('_panel').classList.toggle('open')">✦ AI</button>
+<div id="_panel">
+  <div id="_ph"><strong>${cfg.aiPurpose}</strong><button id="_pc" onclick="document.getElementById('_panel').classList.remove('open')">✕</button></div>
+  <div id="_pm"></div>
+  <div id="_pi"><input id="_in" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')_send()"/><button onclick="_send()">Send</button></div>
+</div>
+<script>
+(function(){
+  var K='${KEY}';
+  var SP=${JSON.stringify(cfg.aiSystemPrompt)};
+  var H=[];
+  var pm=document.getElementById('_pm');
+  function _add(r,t){var d=document.createElement('div');d.className='_m '+r;d.textContent=t;pm.appendChild(d);pm.scrollTop=pm.scrollHeight;return d;}
+  window._send=async function(){
+    var inp=document.getElementById('_in');
+    var t=inp.value.trim();if(!t)return;
+    inp.value='';
+    _add('u',t);H.push({role:'user',content:t});
+    var dot=_add('a','...');
+    try{
+      var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:800,messages:[{role:'system',content:SP},...H]})});
+      var d=await r.json();
+      dot.remove();
+      if(d.error){_add('a','Error: '+d.error.message);return;}
+      var rep=d.choices[0].message.content;
+      H.push({role:'assistant',content:rep});
+      _add('a',rep);
+    }catch(e){dot.remove();_add('a','Connection error.');}
+  };
+  _add('a','Hi! I am your ${cfg.aiPurpose}. How can I help?');
+})();
+<\/script>`;
+}
+
+function exportHTML() {
+  if (!builtHTML) return;
+  var b = new Blob([builtHTML], { type: 'text/html' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'dashboard.html';
+  a.click();
+}
+
+function mic() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Voice not supported. Use Chrome.');
+    return;
+  }
+  if (recording) {
+    recog.stop(); return;
+  }
+  recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recog.continuous = false;
+  recog.interimResults = false;
+  recog.onresult = function(e) {
+    document.getElementById('msgInput').value = e.results[0][0].transcript;
+    recording = false;
+    document.getElementById('micBtn').classList.remove('active');
+    send();
+  };
+  recog.onerror = recog.onend = function() {
+    recording = false;
+    document.getElementById('micBtn').classList.remove('active');
+  };
+  recog.start();
+  recording = true;
+  document.getElementById('micBtn').classList.add('active');
+  status('Listening...', true);
+}
+</script>
+</body>
+</html>
