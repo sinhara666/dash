@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DashBuilder AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ffaa;
+    --accent2: #7c3aed;
+    --text: #e8e8f0;
+    --muted: #555570;
+    --danger: #ff4466;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    flex-shrink: 0;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .key-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .key-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* KEY MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.hidden { display: none; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    width: 90%;
+    max-width: 420px;
+  }
+
+  .modal h2 { font-size: 20px; margin-bottom: 8px; }
+  .modal p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+
+  .modal input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 16px;
+    outline: none;
+  }
+
+  .modal input:focus { border-color: var(--accent); }
+
+  .modal-btn {
+    width: 100%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .modal-btn:hover { opacity: 0.85; }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* CHAT PANEL */
+  .chat-panel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    transition: width 0.3s;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .chat-panel.split { width: 42%; }
+
+  /* MESSAGES */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg {
+    max-width: 85%;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.ai {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px 12px 12px 12px;
+    align-self: flex-start;
+  }
+
+  .msg.ai .sender {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .msg.user {
+    background: var(--accent2);
+    border-radius: 12px 4px 12px 12px;
+    align-self: flex-end;
+    color: #fff;
+  }
+
+  .msg.building {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 4px 12px 12px 12px;
+    align-self: flex-start;
+    color: var(--accent);
+  }
+
+  .typing {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px 12px 12px 12px;
+    align-self: flex-start;
+    width: fit-content;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); background: var(--accent); }
+  }
+
+  /* INPUT AREA */
+  .input-area {
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .text-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    min-height: 48px;
+    max-height: 120px;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+  }
+
+  .text-input:focus { border-color: var(--accent); }
+  .text-input::placeholder { color: var(--muted); }
+
+  .mic-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    font-size: 20px;
+  }
+
+  .mic-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .mic-btn.recording { background: var(--danger); border-color: var(--danger); color: #fff; animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,102,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(255,68,102,0); }
+  }
+
+  .send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .send-btn:hover { opacity: 0.85; }
+  .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* PREVIEW PANEL */
+  .preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .preview-panel.hidden { display: none; }
+
+  .preview-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .preview-header span {
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .export-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .export-btn:hover { opacity: 0.85; }
+
+  .preview-frame {
+    flex: 1;
+    border: none;
+    background: #fff;
+  }
+
+  /* STATUS */
+  .status-bar {
+    padding: 6px 24px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .status-bar.building { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- KEY MODAL -->
+<div class="modal-overlay" id="keyModal">
+  <div class="modal">
+    <h2>Enter your Groq API Key</h2>
+    <p>Your key stays in your browser. Never sent anywhere except Groq's API directly. Get a free key at console.groq.com</p>
+    <input type="password" id="keyInput" placeholder="gsk_..." />
+    <button class="modal-btn" onclick="saveKey()">Let's Build</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Dash<span>Builder</span> AI</div>
+  <button class="key-btn" onclick="document.getElementById('keyModal').classList.remove('hidden')">⚙ API Key</button>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- CHAT -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="messages" id="messages"></div>
+    <div class="status-bar" id="statusBar">Ready to build</div>
+    <div class="input-area">
+      <div class="input-row">
+        <textarea class="text-input" id="textInput" placeholder="Tell me what you want to build..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Voice input">🎤</button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-panel hidden" id="previewPanel">
+    <div class="preview-header">
+      <span>Live Preview</span>
+      <button class="export-btn" onclick="exportDashboard()">⬇ Export HTML</button>
+    </div>
+    <iframe class="preview-frame" id="previewFrame"></iframe>
+  </div>
+</div>
+
+<script>
+  // Fix Android viewport height bug
+  function setVH() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    document.body.style.height = window.innerHeight + 'px';
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+
+  // ─── STATE ───────────────────────────────────────────────
+  let apiKey = localStorage.getItem('groq_key') || '';
+  let conversationHistory = [];
+  let currentDashboardHTML = '';
+  let isRecording = false;
+  let recognition = null;
+  let isBuilding = false;
+
+  const SYSTEM_PROMPT = `You are DashBuilder AI, a friendly assistant that helps people build custom HTML dashboards through conversation. You build rich, Notion-style dashboards with multiple sections all visible at once.
+
+Your job:
+1. Ask what kind of dashboard they need (personal life dashboard, business tracker, student planner, etc.)
+2. Ask what SECTIONS/WIDGETS they want — encourage them to think big: tasks, habits, goals, journal, notes, trackers, schedule, budget, etc.
+3. Ask the dashboard NAME
+4. Ask COLOR preference (dark or light, any favorite colors)
+5. Ask what the BUILT-IN AI inside should help with
+6. Once you have enough info (3-5 messages), build it
+
+When ready, respond with ONLY this exact format — nothing before, nothing after:
+BUILD_DASHBOARD:{"title":"...","subtitle":"...","tabs":["Section1","Section2","Section3","Section4","Section5","Section6"],"primaryColor":"#hexcode","accentColor":"#hexcode","bgColor":"#hexcode","aiPurpose":"...","aiSystemPrompt":"..."}
+
+Rules:
+- tabs: 4-8 section names (this becomes a rich multi-section dashboard, not just tabs)
+- bgColor: dark like #0d0d1a or #111118 unless they want light
+- aiSystemPrompt: detailed prompt for the AI built into their dashboard
+- Be warm, fast, conversational. Max 2 questions per message. Build fast if you have enough info.`;
+
+  // ─── INIT ─────────────────────────────────────────────────
+  window.onload = () => {
+    if (!apiKey) {
+      document.getElementById('keyModal').classList.remove('hidden');
+    } else {
+      document.getElementById('keyModal').classList.add('hidden');
+      startConversation();
+    }
+  };
+
+  function saveKey() {
+    const val = document.getElementById('keyInput').value.trim();
+    if (!val.startsWith('gsk_')) { alert('Enter a valid Groq key starting with gsk_'); return; }
+    apiKey = val;
+    localStorage.setItem('groq_key', val);
+    document.getElementById('keyModal').classList.add('hidden');
+    startConversation();
+  }
+
+  function startConversation() {
+    addMessage('ai', "Hey! I'm DashBuilder. Tell me — what kind of dashboard do you want to build? (examples: project tracker, client CRM, meal planner, habit tracker, sales pipeline...)");
+  }
+
+  // ─── MESSAGES ─────────────────────────────────────────────
+  function addMessage(role, text) {
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    if (role === 'ai') {
+      div.innerHTML = `<div class="sender">DashBuilder</div>${text}`;
+    } else if (role === 'building') {
+      div.innerHTML = `<div class="sender">BUILDING...</div>${text}`;
+    } else {
+      div.textContent = text;
+    }
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'typing';
+    div.id = 'typingIndicator';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function hideTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+  }
+
+  function setStatus(text, building = false) {
+    const bar = document.getElementById('statusBar');
+    bar.textContent = text;
+    bar.className = building ? 'status-bar building' : 'status-bar';
+  }
+
+  // ─── SEND MESSAGE ──────────────────────────────────────────
+  async function sendMessage() {
+    const input = document.getElementById('textInput');
+    const text = input.value.trim();
+    if (!text || isBuilding) return;
+
+    addMessage('user', text);
+    input.value = '';
+    input.style.height = 'auto';
+    conversationHistory.push({ role: 'user', content: text });
+
+    document.getElementById('sendBtn').disabled = true;
+    showTyping();
+    setStatus('Thinking...');
+
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 2000,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...conversationHistory
+          ]
+        })
+      });
+
+      const data = await response.json();
+      hideTyping();
+
+      if (data.error) { addMessage('ai', `Error: ${data.error.message}`); setStatus('Error'); return; }
+
+      const reply = data.choices[0].message.content;
+      conversationHistory.push({ role: 'assistant', content: reply });
+
+      if (reply.startsWith('BUILD_DASHBOARD:') || text.startsWith('BUILD_DASHBOARD:')) {
+        const raw = reply.startsWith('BUILD_DASHBOARD:') ? reply : text;
+        const jsonStr = raw.replace('BUILD_DASHBOARD:', '').trim();
+        const config = JSON.parse(jsonStr);
+        addMessage('building', `Building your ${config.title}...`);
+        setStatus('Building your dashboard...', true);
+        isBuilding = true;
+        await buildDashboard(config);
+        isBuilding = false;
+        setStatus('Dashboard ready! Export when you want.');
+      } else {
+        addMessage('ai', reply);
+        setStatus('Ready');
+      }
+    } catch (err) {
+      hideTyping();
+      addMessage('ai', 'Something went wrong. Check your API key and try again.');
+      setStatus('Error');
+    }
+
+    document.getElementById('sendBtn').disabled = false;
+  }
+
+  // ─── BUILD DASHBOARD ───────────────────────────────────────
+  async function buildDashboard(config) {
+    const groqKeyForOutput = apiKey; // pass current key into output
+    const buildPrompt = `You are building a premium HTML dashboard. Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown, no explanation, nothing else.
+
+DASHBOARD SPECS:
+Title: ${config.title}
+Subtitle: ${config.subtitle}
+Primary Color: ${config.primaryColor}
+Accent Color: ${config.accentColor}
+Background: ${config.bgColor}
+Sections requested: ${config.tabs.join(', ')}
+
+LAYOUT - BUILD THIS EXACT STRUCTURE:
+- Left sidebar (220px wide, fixed) with:
+  - Dashboard title at top
+  - Navigation links for each section
+  - A quick-add input or shortcut at bottom
+  - Sidebar background slightly lighter than main bg
+- Main content area (scrollable) to the right of sidebar
+- Main area shows ALL sections at once as a grid of cards (like Notion) - NOT tabs
+- Each section is a card/widget with its own header and content
+- Cards arranged in a responsive CSS grid (2-3 columns on desktop)
+- Clicking sidebar nav smoothly scrolls to that section
+
+DESIGN - THIS MUST LOOK PREMIUM:
+- Import a distinctive Google Font (try Outfit, Plus Jakarta Sans, DM Sans, or Bricolage Grotesque)
+- CSS variables for all colors
+- Background: ${config.bgColor}
+- Cards have subtle border, slight border-radius (8-12px), padding
+- Accent color ${config.accentColor} for buttons, active states, highlights
+- Primary color ${config.primaryColor} for headers and key elements  
+- Hover states on all interactive elements
+- Smooth transitions everywhere
+- Looks like a $300 Notion template someone would buy
+
+EACH SECTION CARD MUST HAVE REAL CONTENT:
+- To-do/task sections: checkable list items, add new item input, items save to localStorage
+- Tracker sections: progress bars or simple number inputs that save
+- Log/journal sections: textarea to write entries, saved entries list below
+- Notes sections: editable note cards
+- Goal sections: goal items with progress indicators
+- Calendar/schedule sections: simple weekly view or upcoming items list
+- ALL data persists in localStorage keyed by section name
+- Add/remove items works with real JS
+
+AI CHAT - MUST WORK:
+- Fixed floating button bottom-right, accent color, shows "✦ AI" text
+- Click opens a panel (400px wide, fixed right side, full height)
+- Panel has: close button, message history, input row with send button
+- Pre-load key: localStorage.setItem('groq_key', '${groqKeyForOutput}')
+- System prompt: "${config.aiSystemPrompt.replace(/"/g, '\\"')}"
+- Exact fetch:
+fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+localStorage.getItem('groq_key'),'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:800,messages:[{role:'system',content:sysPrompt},...chatHistory]})})
+- chatHistory array grows with each exchange for memory
+- Typing indicator (animated dots) while waiting
+- Error handling if fetch fails
+
+Return ONLY the complete HTML. Start with <!DOCTYPE html>.`;
+
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 8000,
+          messages: [{ role: 'user', content: buildPrompt }]
+        })
+      });
+
+      const data = await response.json();
+      let html = data.choices[0].message.content;
+
+      // Clean up any markdown
+      html = html.replace(/^```html\n?/, '').replace(/\n?```$/, '').trim();
+
+      currentDashboardHTML = html;
+
+      // Show preview
+      const preview = document.getElementById('previewPanel');
+      preview.classList.remove('hidden');
+      document.getElementById('chatPanel').classList.add('split');
+
+      const frame = document.getElementById('previewFrame');
+      frame.srcdoc = html;
+
+      // Reset history so next build starts fresh
+      conversationHistory = [];
+      addMessage('ai', `✅ Your **${config.title}** is ready! Preview on the right. Hit **Export HTML** to download your file — ready to upload to GitHub and sell. Want to build another one? Just tell me what you need!`);
+
+    } catch (err) {
+      addMessage('ai', 'Build failed. Try again or simplify your request.');
+    }
+  }
+
+  // ─── EXPORT ───────────────────────────────────────────────
+  function exportDashboard() {
+    if (!currentDashboardHTML) return;
+    const blob = new Blob([currentDashboardHTML], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'dashboard.html';
+    a.click();
+  }
+
+  // ─── VOICE ────────────────────────────────────────────────
+  function toggleMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice not supported in this browser. Use Chrome.');
+      return;
+    }
+
+    if (isRecording) {
+      recognition.stop();
+      isRecording = false;
+      document.getElementById('micBtn').classList.remove('recording');
+      return;
+    }
+
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      document.getElementById('textInput').value = transcript;
+      isRecording = false;
+      document.getElementById('micBtn').classList.remove('recording');
+      sendMessage();
+    };
+
+    recognition.onerror = () => {
+      isRecording = false;
+      document.getElementById('micBtn').classList.remove('recording');
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      document.getElementById('micBtn').classList.remove('recording');
+    };
+
+    recognition.start();
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    setStatus('Listening...');
+  }
+</script>
+</body>
+</html>
