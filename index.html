@@ -8,17 +8,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
 :root {
-  --bg-primary: #0f0f1e;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #16213e;
-  --border: #2a2a4e;
-  --accent: #00d9ff;
+  --bg-primary: #0a0a12;
+  --bg-secondary: #151523;
+  --bg-tertiary: #1a1a2e;
+  --border: #2d2d4a;
+  --accent: #00e5ff;
   --accent-dark: #0099cc;
   --success: #10b981;
   --danger: #ef4444;
-  --text-primary: #f0f0f8;
-  --text-secondary: #a0a0b8;
-  --text-muted: #6b6b7f;
+  --text-primary: #ffffff;
+  --text-secondary: #d0d0e8;
+  --text-muted: #8a8aaa;
   --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
@@ -67,6 +67,7 @@ body {
   font-weight: 800;
   margin-bottom: 12px;
   letter-spacing: -0.5px;
+  color: var(--text-primary);
 }
 
 .modal-box h2 span { 
@@ -109,8 +110,8 @@ body {
 
 #keyInput:focus { 
   border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
-  background: rgba(0, 217, 255, 0.02);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+  background: rgba(0, 229, 255, 0.02);
 }
 
 #keyInput::placeholder { color: var(--text-muted); }
@@ -118,7 +119,7 @@ body {
 #saveBtn {
   width: 100%;
   background: linear-gradient(135deg, var(--accent), #00ffff);
-  color: var(--bg-primary);
+  color: #000;
   border: none;
   padding: 14px;
   border-radius: 12px;
@@ -128,13 +129,13 @@ body {
   cursor: pointer;
   display: block;
   transition: all 0.3s;
-  box-shadow: 0 8px 20px rgba(0, 217, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 229, 255, 0.3);
 }
 
 #saveBtn:hover { 
   opacity: 0.95;
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 217, 255, 0.4);
+  box-shadow: 0 12px 28px rgba(0, 229, 255, 0.4);
 }
 
 #saveBtn:active { transform: translateY(0); }
@@ -162,6 +163,7 @@ header {
   font-size: 20px; 
   font-weight: 800;
   letter-spacing: -0.5px;
+  color: var(--text-primary);
 }
 
 .logo span { 
@@ -187,7 +189,7 @@ header {
 .change-key:hover { 
   border-color: var(--accent); 
   color: var(--accent);
-  background: rgba(0, 217, 255, 0.05);
+  background: rgba(0, 229, 255, 0.05);
 }
 
 /* ── MAIN ── */
@@ -249,6 +251,7 @@ header {
   border: 1px solid var(--border);
   border-radius: 4px 14px 14px 14px;
   align-self: flex-start;
+  color: var(--text-primary);
 }
 
 .bubble.ai .who {
@@ -263,7 +266,7 @@ header {
 
 .bubble.user {
   background: linear-gradient(135deg, var(--accent), #00ffff);
-  color: var(--bg-primary);
+  color: #000;
   border-radius: 14px 4px 14px 14px;
   align-self: flex-end;
   font-weight: 500;
@@ -339,8 +342,8 @@ header {
 
 #msgInput:focus { 
   border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(0, 217, 255, 0.15);
-  background: rgba(0, 217, 255, 0.02);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+  background: rgba(0, 229, 255, 0.02);
 }
 
 #msgInput::placeholder { color: var(--text-muted); }
@@ -364,7 +367,7 @@ header {
 .icon-btn:hover { 
   border-color: var(--accent); 
   color: var(--accent);
-  background: rgba(0, 217, 255, 0.05);
+  background: rgba(0, 229, 255, 0.05);
 }
 
 .icon-btn.active { 
@@ -377,7 +380,7 @@ header {
 .icon-btn.send { 
   background: linear-gradient(135deg, var(--accent), #00ffff);
   border-color: var(--accent);
-  color: var(--bg-primary);
+  color: #000;
   font-weight: 700;
 }
 
@@ -524,10 +527,10 @@ Steps:
 5. After 3-5 messages, when you have enough info, output the build command
 
 When ready, output ONLY this — nothing else before or after:
-BUILD_DASHBOARD:{"title":"...","subtitle":"...","tabs":["Section1","Section2","Section3","Section4"],"primaryColor":"#hex","accentColor":"#hex","bgColor":"#0f0f1e","aiPurpose":"...","aiSystemPrompt":"..."}
+BUILD_DASHBOARD:{"title":"...","subtitle":"...","tabs":["Section1","Section2","Section3","Section4"],"primaryColor":"#hex","accentColor":"#hex","bgColor":"#0a0a12","aiPurpose":"...","aiSystemPrompt":"..."}
 
 Rules:
-- bgColor: dark (#0f0f1e or #1a1a2e) unless user wants light
+- bgColor: dark (#0a0a12 or #151523) unless user wants light
 - tabs: 4-8 relevant sections
 - Be warm, fast. Max 2 questions at a time. Build fast once you have the info.`;
 
@@ -779,23 +782,23 @@ function buildChat(cfg) {
 <style>
 #_fab{position:fixed;bottom:24px;right:24px;background:${cfg.accentColor};color:#000;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,0.3);transition:all 0.3s;}
 #_fab:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.4);}
-#_panel{position:fixed;right:-410px;top:0;width:380px;height:100%;background:#0f0f1e;border-left:1px solid #2a2a4e;z-index:8999;display:flex;flex-direction:column;transition:right 0.3s ease;box-shadow:-8px 0 24px rgba(0,0,0,0.5);}
+#_panel{position:fixed;right:-410px;top:0;width:380px;height:100%;background:#0a0a12;border-left:1px solid #2d2d4a;z-index:8999;display:flex;flex-direction:column;transition:right 0.3s ease;box-shadow:-8px 0 24px rgba(0,0,0,0.5);}
 #_panel.open{right:0;}
-#_ph{padding:16px 18px;background:#1a1a2e;border-bottom:1px solid #2a2a4e;display:flex;align-items:center;justify-content:space-between;}
-#_ph strong{color:#f0f0f8;font-size:14px;font-weight:700;}
-#_pc{cursor:pointer;background:none;border:none;color:#6b6b7f;font-size:18px;padding:4px 8px;transition:all 0.2s;}
-#_pc:hover{color:#00d9ff;}
+#_ph{padding:16px 18px;background:#151523;border-bottom:1px solid #2d2d4a;display:flex;align-items:center;justify-content:space-between;}
+#_ph strong{color:#ffffff;font-size:14px;font-weight:700;}
+#_pc{cursor:pointer;background:none;border:none;color:#8a8aaa;font-size:18px;padding:4px 8px;transition:all 0.2s;}
+#_pc:hover{color:#00e5ff;}
 #_pm{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
 #_pm::-webkit-scrollbar{width:4px;}
 #_pm::-webkit-scrollbar-track{background:transparent;}
-#_pm::-webkit-scrollbar-thumb{background:#2a2a4e;border-radius:2px;}
+#_pm::-webkit-scrollbar-thumb{background:#2d2d4a;border-radius:2px;}
 ._m{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5;max-width:85%;font-family:'Inter',sans-serif;animation:slideIn 0.3s ease;}
 ._m.u{background:${cfg.accentColor};color:#000;align-self:flex-end;border-radius:12px 4px 12px 12px;font-weight:500;}
-._m.a{background:#1a1a2e;color:#f0f0f8;border:1px solid #2a2a4e;align-self:flex-start;border-radius:4px 12px 12px 12px;}
+._m.a{background:#1a1a2e;color:#ffffff;border:1px solid #2d2d4a;align-self:flex-start;border-radius:4px 12px 12px 12px;}
 @keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-#_pi{padding:14px;border-top:1px solid #2a2a4e;background:#1a1a2e;display:flex;gap:8px;}
-#_pi input{flex:1;background:#0f0f1e;border:1.5px solid #2a2a4e;color:#f0f0f8;padding:11px 12px;border-radius:10px;font-size:13px;outline:none;font-family:'Inter',sans-serif;transition:all 0.3s;}
-#_pi input:focus{border-color:${cfg.accentColor};box-shadow:0 0 20px rgba(0,217,255,0.15);}
+#_pi{padding:14px;border-top:1px solid #2d2d4a;background:#151523;display:flex;gap:8px;}
+#_pi input{flex:1;background:#0a0a12;border:1.5px solid #2d2d4a;color:#ffffff;padding:11px 12px;border-radius:10px;font-size:13px;outline:none;font-family:'Inter',sans-serif;transition:all 0.3s;}
+#_pi input:focus{border-color:${cfg.accentColor};box-shadow:0 0 20px rgba(0,229,255,0.15);}
 #_pi button{background:${cfg.accentColor};color:#000;border:none;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:13px;transition:all 0.2s;}
 #_pi button:hover{opacity:0.9;transform:translateY(-1px);}
 </style>
