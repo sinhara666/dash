@@ -5,17 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>DashBuilder AI</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
 :root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --border: #1e1e2e;
-  --accent: #00ffaa;
-  --purple: #7c3aed;
-  --text: #e8e8f0;
-  --muted: #555570;
-  --danger: #ff4466;
+  --bg-primary: #0a0a12;
+  --bg-secondary: #151523;
+  --bg-tertiary: #1a1a2e;
+  --border: #2d2d4a;
+  --accent: #00e5ff;
+  --accent-dark: #0099cc;
+  --success: #10b981;
+  --danger: #ef4444;
+  --text-primary: #ffffff;
+  --text-secondary: #d0d0e8;
+  --text-muted: #8a8aaa;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,120 +28,169 @@
 html { height: 100%; }
 
 body {
-  font-family: 'Outfit', sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  line-height: 1.6;
 }
 
 /* ── MODAL ── */
 #modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
 }
 
 #modal.hide { display: none; }
 
 .modal-box {
-  background: var(--surface);
+  background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 36px;
+  border-radius: 20px;
+  padding: 48px;
   width: 92%;
-  max-width: 400px;
+  max-width: 420px;
+  box-shadow: var(--shadow);
 }
 
 .modal-box h2 {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
 }
 
-.modal-box h2 span { color: var(--accent); }
+.modal-box h2 span { 
+  background: linear-gradient(135deg, var(--accent), #00ffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 .modal-box p {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-  margin-bottom: 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 28px;
 }
 
-.modal-box a { color: var(--accent); }
+.modal-box a { 
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.modal-box a:hover { color: #00ffff; }
 
 #keyInput {
   width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border);
+  color: var(--text-primary);
   padding: 14px 16px;
-  border-radius: 10px;
-  font-family: 'Space Mono', monospace;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   outline: none;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   display: block;
+  transition: all 0.3s;
 }
 
-#keyInput:focus { border-color: var(--accent); }
+#keyInput:focus { 
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+  background: rgba(0, 229, 255, 0.02);
+}
+
+#keyInput::placeholder { color: var(--text-muted); }
 
 #saveBtn {
   width: 100%;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #00ffff);
   color: #000;
   border: none;
   padding: 14px;
-  border-radius: 10px;
-  font-family: 'Outfit', sans-serif;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   display: block;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px rgba(0, 229, 255, 0.3);
 }
 
-#saveBtn:hover { opacity: 0.9; }
+#saveBtn:hover { 
+  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 229, 255, 0.4);
+}
+
+#saveBtn:active { transform: translateY(0); }
 
 .modal-err {
   color: var(--danger);
-  font-size: 12px;
-  margin-top: 8px;
+  font-size: 13px;
+  margin-top: 12px;
   display: none;
+  font-weight: 500;
 }
 
 /* ── HEADER ── */
 header {
-  background: var(--surface);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
-  padding: 14px 20px;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
 }
 
-.logo { font-size: 18px; font-weight: 800; }
-.logo span { color: var(--accent); }
-
-.change-key {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  cursor: pointer;
+.logo { 
+  font-size: 20px; 
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
 }
 
-.change-key:hover { border-color: var(--accent); color: var(--accent); }
+.logo span { 
+  background: linear-gradient(135deg, var(--accent), #00ffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.change-key {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.change-key:hover { 
+  border-color: var(--accent); 
+  color: var(--accent);
+  background: rgba(0, 229, 255, 0.05);
+}
 
 /* ── MAIN ── */
 .main {
@@ -152,7 +206,7 @@ header {
   flex-direction: column;
   width: 100%;
   min-height: 0;
-  transition: width 0.3s;
+  transition: width 0.3s ease;
 }
 
 .chat.split { width: 45%; }
@@ -160,52 +214,62 @@ header {
 .msgs {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   -webkit-overflow-scrolling: touch;
 }
 
-.msgs::-webkit-scrollbar { width: 3px; }
-.msgs::-webkit-scrollbar-thumb { background: var(--border); }
+.msgs::-webkit-scrollbar { width: 6px; }
+.msgs::-webkit-scrollbar-track { background: transparent; }
+.msgs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.msgs::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 .bubble {
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
   font-size: 14px;
   line-height: 1.6;
-  max-width: 88%;
-  animation: pop 0.25s ease;
+  max-width: 85%;
+  animation: slideIn 0.3s ease;
 }
 
-@keyframes pop {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(8px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
 }
 
 .bubble.ai {
-  background: var(--surface);
+  background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: 3px 12px 12px 12px;
+  border-radius: 4px 14px 14px 14px;
   align-self: flex-start;
+  color: var(--text-primary);
 }
 
 .bubble.ai .who {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--accent);
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  font-family: 'Space Mono', monospace;
-  margin-bottom: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 6px;
 }
 
 .bubble.user {
-  background: var(--purple);
-  border-radius: 12px 3px 12px 12px;
+  background: linear-gradient(135deg, var(--accent), #00ffff);
+  color: #000;
+  border-radius: 14px 4px 14px 14px;
   align-self: flex-end;
-  color: #fff;
+  font-weight: 500;
 }
 
 .bubble.status {
@@ -215,74 +279,82 @@ header {
   border-radius: 8px;
   align-self: flex-start;
   font-size: 12px;
-  font-family: 'Space Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .dots {
   display: flex;
-  gap: 4px;
-  padding: 14px 18px;
-  background: var(--surface);
+  gap: 5px;
+  padding: 14px 16px;
+  background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: 3px 12px 12px 12px;
+  border-radius: 4px 14px 14px 14px;
   align-self: flex-start;
   width: fit-content;
 }
 
 .dots span {
-  width: 6px; height: 6px;
-  background: var(--muted);
+  width: 7px; 
+  height: 7px;
+  background: var(--accent);
   border-radius: 50%;
-  animation: bounce 1.2s infinite;
+  animation: bounce 1.4s infinite;
 }
 
 .dots span:nth-child(2) { animation-delay: 0.2s; }
 .dots span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes bounce {
-  0%, 60%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-5px); background: var(--accent); }
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30% { transform: translateY(-8px); opacity: 1; }
 }
 
 /* ── INPUT ── */
 .input-wrap {
-  padding: 12px 16px;
+  padding: 16px 20px;
   border-top: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--bg-secondary);
   flex-shrink: 0;
 }
 
 .input-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: flex-end;
 }
 
 #msgInput {
   flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 11px 14px;
-  border-radius: 10px;
-  font-family: 'Outfit', sans-serif;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border);
+  color: var(--text-primary);
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   resize: none;
   outline: none;
   min-height: 44px;
   max-height: 120px;
   line-height: 1.5;
+  transition: all 0.3s;
 }
 
-#msgInput:focus { border-color: var(--accent); }
-#msgInput::placeholder { color: var(--muted); }
+#msgInput:focus { 
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+  background: rgba(0, 229, 255, 0.02);
+}
+
+#msgInput::placeholder { color: var(--text-muted); }
 
 .icon-btn {
-  width: 44px; height: 44px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--muted);
+  width: 44px; 
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
   font-size: 18px;
   cursor: pointer;
   display: flex;
@@ -292,28 +364,53 @@ header {
   transition: all 0.2s;
 }
 
-.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
-.icon-btn.active { background: var(--danger); border-color: var(--danger); color: #fff; animation: pulse 1s infinite; }
-.icon-btn.send { background: var(--accent); border-color: var(--accent); color: #000; }
-.icon-btn.send:hover { opacity: 0.85; }
-.icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.icon-btn:hover { 
+  border-color: var(--accent); 
+  color: var(--accent);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.icon-btn.active { 
+  background: var(--danger); 
+  border-color: var(--danger); 
+  color: #fff; 
+  animation: pulse 1s infinite; 
+}
+
+.icon-btn.send { 
+  background: linear-gradient(135deg, var(--accent), #00ffff);
+  border-color: var(--accent);
+  color: #000;
+  font-weight: 700;
+}
+
+.icon-btn.send:hover { 
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.icon-btn:disabled { 
+  opacity: 0.4; 
+  cursor: not-allowed; 
+}
 
 @keyframes pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(255,68,102,0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(255,68,102,0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
 }
 
 /* ── STATUS ── */
 .statusbar {
-  padding: 5px 20px;
-  font-size: 11px;
-  font-family: 'Space Mono', monospace;
-  color: var(--muted);
+  padding: 8px 20px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  letter-spacing: 0.5px;
 }
 
-.statusbar.on { color: var(--accent); }
+.statusbar.on { color: var(--success); }
 
 /* ── PREVIEW ── */
 .preview {
@@ -327,8 +424,8 @@ header {
 .preview.show { display: flex; }
 
 .preview-top {
-  padding: 10px 16px;
-  background: var(--surface);
+  padding: 12px 20px;
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -337,25 +434,30 @@ header {
 }
 
 .preview-top span {
-  font-size: 11px;
-  font-family: 'Space Mono', monospace;
-  color: var(--muted);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
 }
 
 .export-btn {
-  background: var(--accent);
-  color: #000;
+  background: linear-gradient(135deg, var(--success), #34d399);
+  color: #fff;
   border: none;
-  padding: 7px 16px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-weight: 700;
   font-size: 12px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.export-btn:hover { opacity: 0.85; }
+.export-btn:hover { 
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
 
 #frame {
   flex: 1;
@@ -370,9 +472,9 @@ header {
 <div id="modal">
   <div class="modal-box">
     <h2>Dash<span>Builder</span> AI</h2>
-    <p>Enter your free Groq API key to start building. Get one at <a href="https://console.groq.com" target="_blank">console.groq.com</a> — takes 2 minutes. Your key never leaves your browser.</p>
+    <p>Enter your free Groq API key to start building beautiful dashboards. Get one at <a href="https://console.groq.com" target="_blank">console.groq.com</a> — takes 2 minutes. Your key stays secure in your browser.</p>
     <input id="keyInput" type="password" placeholder="gsk_..." autocomplete="off" />
-    <div class="modal-err" id="keyErr">Please enter a valid Groq key</div>
+    <div class="modal-err" id="keyErr">Please enter a valid Groq key (min. 10 characters)</div>
     <button id="saveBtn" onclick="saveKey()">Let's Build →</button>
   </div>
 </div>
@@ -380,7 +482,7 @@ header {
 <!-- HEADER -->
 <header>
   <div class="logo">Dash<span>Builder</span> AI</div>
-  <button class="change-key" onclick="showModal()">⚙ Key</button>
+  <button class="change-key" onclick="showModal()">⚙ API Key</button>
 </header>
 
 <!-- MAIN -->
@@ -390,7 +492,7 @@ header {
     <div class="statusbar" id="statusbar">Ready</div>
     <div class="input-wrap">
       <div class="input-row">
-        <textarea id="msgInput" placeholder="Tell me what to build..." rows="1"
+        <textarea id="msgInput" placeholder="Describe your dashboard..." rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}"
           oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
         <button class="icon-btn" id="micBtn" onclick="mic()" title="Voice">🎤</button>
@@ -421,14 +523,14 @@ Steps:
 1. Ask what kind of dashboard (personal, business, student, etc.)
 2. Ask what sections/widgets they want (tasks, habits, goals, journal, tracker, budget, notes, etc.) - encourage 4-8 sections
 3. Ask the name and color preferences (dark or light theme, favorite colors)
-4. Ask what the built-in AI assistant inside should help with
+4. Ask what the built-in AI assistant should help with
 5. After 3-5 messages, when you have enough info, output the build command
 
 When ready, output ONLY this — nothing else before or after:
-BUILD_DASHBOARD:{"title":"...","subtitle":"...","tabs":["Section1","Section2","Section3","Section4","Section5"],"primaryColor":"#hex","accentColor":"#hex","bgColor":"#0d0d1a","aiPurpose":"...","aiSystemPrompt":"..."}
+BUILD_DASHBOARD:{"title":"...","subtitle":"...","tabs":["Section1","Section2","Section3","Section4"],"primaryColor":"#hex","accentColor":"#hex","bgColor":"#0a0a12","aiPurpose":"...","aiSystemPrompt":"..."}
 
 Rules:
-- bgColor: dark (#0d0d1a or #111118) unless user wants light
+- bgColor: dark (#0a0a12 or #151523) unless user wants light
 - tabs: 4-8 relevant sections
 - Be warm, fast. Max 2 questions at a time. Build fast once you have the info.`;
 
@@ -442,6 +544,7 @@ window.addEventListener('load', function() {
 
 function showModal() {
   document.getElementById('modal').classList.remove('hide');
+  document.getElementById('keyInput').focus();
 }
 
 function hideModal() {
@@ -468,7 +571,7 @@ document.getElementById('keyInput').addEventListener('keydown', function(e) {
 });
 
 function greet() {
-  bubble('ai', "Hey! I'm DashBuilder. What kind of dashboard do you want to build? Think personal life, business, student planner, client tracker — anything goes.");
+  bubble('ai', "Hey! I'm DashBuilder. What kind of dashboard do you want to build? Think personal life, business, student planner, client tracker — anything goes!");
 }
 
 function bubble(role, text) {
@@ -516,8 +619,8 @@ async function send() {
     input.style.height = 'auto';
     try {
       var cfg = JSON.parse(text.replace('BUILD_DASHBOARD:', '').trim());
-      bubble('user', 'Build my dashboard');
-      bubble('ai', 'Got it! Building now...');
+      bubble('user', '🏗️ Build my dashboard');
+      bubble('ai', 'Got it! Building your masterpiece now...');
       await build(cfg);
     } catch(e) { bubble('ai', 'Could not parse that build command. Try describing what you want instead.'); }
     return;
@@ -533,15 +636,15 @@ async function send() {
   status('Thinking...', true);
 
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    var res = await fetch('/api/groq', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + KEY,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        apiKey: KEY,
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 2000,
+        maxTokens: 2000,
         messages: [{ role: 'system', content: SYSTEM }, ...history]
       })
     });
@@ -550,7 +653,7 @@ async function send() {
     clearTyping();
 
     if (data.error) {
-      bubble('ai', 'API Error: ' + data.error.message);
+      bubble('ai', '❌ API Error: ' + data.error);
       status('Error');
       document.getElementById('sendBtn').disabled = false;
       return;
@@ -563,24 +666,24 @@ async function send() {
       var jsonStr = reply.replace('BUILD_DASHBOARD:', '').trim();
       try {
         var cfg = JSON.parse(jsonStr);
-        bubble('ai', 'Building your ' + cfg.title + ' now...');
+        bubble('ai', '✨ Building your ' + cfg.title + ' now...');
         status('Building...', true);
         building = true;
         await build(cfg);
         building = false;
-        history = []; // reset for next build
-        status('Done! Export when ready.');
+        history = [];
+        status('Ready', true);
       } catch(e) {
         bubble('ai', 'Build config had an issue. Can you describe what you want again?');
         status('Error');
       }
     } else {
       bubble('ai', reply);
-      status('Ready');
+      status('Ready', true);
     }
   } catch(e) {
     clearTyping();
-    bubble('ai', 'Connection error. Check your API key and internet connection.');
+    bubble('ai', '⚠️ Connection error: ' + e.message + '. Check your API key and internet connection.');
     status('Error');
   }
 
@@ -588,54 +691,67 @@ async function send() {
 }
 
 async function build(cfg) {
-  var prompt = `Build a premium single-file HTML dashboard. Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown fences, no explanation.
+  var prompt = `Build a premium single-file HTML dashboard with professional styling.
+Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown fences, no explanation.
 
 Title: ${cfg.title}
-Subtitle: ${cfg.subtitle || 'Your personal dashboard'}
+Subtitle: ${cfg.subtitle || 'Dashboard'}
 Colors: background=${cfg.bgColor}, primary=${cfg.primaryColor}, accent=${cfg.accentColor}
 Sections to build: ${cfg.tabs.join(', ')}
 
 LAYOUT:
-- Fixed left sidebar (200px): logo/title at top, nav links for each section, dark bg
-- Right main area scrollable: show ALL sections as widget cards in a 2-3 col CSS grid
-- Sidebar nav links scroll smoothly to each section card
+- Fixed left sidebar (220px): logo/title at top, nav links for each section, dark professional bg
+- Right main area scrollable: show ALL sections as professional widget cards in a 2-3 col CSS grid
+- Sidebar nav links smooth scroll to each section
 
-DESIGN - must look like a $200 premium template:
-- Google Font: Outfit (import from Google Fonts)
-- CSS variables for colors
-- Section cards: rounded corners, subtle border, 20px padding, dark card bg
-- Each section header has a relevant emoji + title
-- Buttons use accent color, hover effects
-- Smooth transitions on all interactive elements
-- Decorative touches: gradient accent bars on card headers, subtle shadows
+DESIGN REQUIREMENTS (must look like a $500+ premium template):
+- Modern professional fonts: Use 'Inter' or system fonts for body, 'JetBrains Mono' for code
+- CSS variables for all colors
+- Section cards: rounded corners (16px), subtle border, 24px padding, elevated design
+- Each section header has relevant emoji + clear title
+- Buttons: professional rounded corners (10px), smooth transitions, hover effects
+- All text well-spaced: line-height 1.6+, proper letter spacing
+- Decorative touches: gradient accents, subtle shadows, smooth animations
+- Color contrast: ensure text is readable (WCAG AA)
 
-SECTIONS - each must be interactive:
+SECTIONS - each must be HIGHLY INTERACTIVE:
 - Tasks/Todo: checkbox list with strike-through, add item input, delete button, localStorage save
-- Habits: daily checkboxes with streak counter, localStorage save
-- Goals: list with progress % and progress bar, localStorage save
-- Journal/Notes: textarea + save button + list of saved entries, localStorage save
-- Trackers: metric with +/- buttons and progress bar, localStorage save
-- Any other sections: relevant interactive widgets, localStorage save
+- Habits: daily checkboxes with streak counter, animated progress, localStorage save
+- Goals: list with progress %, progress bar with gradient, localStorage save
+- Journal/Notes: textarea + save button + list of saved entries with timestamps, localStorage save
+- Trackers: metric with +/- buttons, animated progress bar, localStorage save
+- Analytics: chart/stats display with data visualization
+- Calendar: interactive mini calendar with event marking
+- Notes: rich note-taking with colors/tags
+- Any other: relevant interactive widgets with professional styling
 
-DO NOT add any chat button, AI panel, or any script calling any API. That gets added separately.
-Close all HTML tags. End file with </body></html>.`;
+IMPORTANT:
+- Use modern CSS: flexbox, grid, CSS variables, smooth transitions (0.3s)
+- Make everything feel responsive and polished
+- DO NOT add any chat button, AI panel, or any API-calling script
+- Close all HTML tags. End file with </body></html>`;
 
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    var res = await fetch('/api/groq', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + KEY,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        apiKey: KEY,
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 32000,
+        maxTokens: 32000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     var data = await res.json();
-    if (data.error) { bubble('ai', 'Build error: ' + data.error.message); return; }
+    if (data.error) { 
+      bubble('ai', '❌ Build error: ' + data.error); 
+      building = false;
+      status('Error');
+      return; 
+    }
 
     var html = data.choices[0].message.content;
     // Strip markdown fences
@@ -653,46 +769,49 @@ Close all HTML tags. End file with </body></html>.`;
     document.getElementById('chat').classList.add('split');
     document.getElementById('frame').srcdoc = html;
 
-    bubble('ai', '✅ ' + cfg.title + ' is ready! Click Export HTML to download it and upload to GitHub.');
+    bubble('ai', '✅ ' + cfg.title + ' is ready! Click "Export HTML" to download and use it.');
   } catch(e) {
-    bubble('ai', 'Build failed. Try again.');
+    bubble('ai', '❌ Build failed: ' + e.message);
     building = false;
+    status('Error');
   }
 }
 
 function buildChat(cfg) {
   return `
 <style>
-#_fab{position:fixed;bottom:20px;right:20px;background:${cfg.accentColor};color:#000;border:none;border-radius:50px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;z-index:9000;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
-#_fab:hover{opacity:.9;}
-#_panel{position:fixed;right:-410px;top:0;width:380px;height:100%;background:#0d0d1a;border-left:1px solid #1e1e2e;z-index:8999;display:flex;flex-direction:column;transition:right .3s ease;box-shadow:-6px 0 30px rgba(0,0,0,.5);}
+#_fab{position:fixed;bottom:24px;right:24px;background:${cfg.accentColor};color:#000;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,0.3);transition:all 0.3s;}
+#_fab:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.4);}
+#_panel{position:fixed;right:-410px;top:0;width:380px;height:100%;background:#0a0a12;border-left:1px solid #2d2d4a;z-index:8999;display:flex;flex-direction:column;transition:right 0.3s ease;box-shadow:-8px 0 24px rgba(0,0,0,0.5);}
 #_panel.open{right:0;}
-#_ph{padding:14px 18px;background:#111118;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;justify-content:space-between;}
-#_ph strong{color:#fff;font-size:14px;}
-#_pc{cursor:pointer;background:none;border:none;color:#666;font-size:18px;padding:4px 8px;}
-#_pc:hover{color:#fff;}
-#_pm{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
-#_pm::-webkit-scrollbar{width:3px;}
-#_pm::-webkit-scrollbar-thumb{background:#1e1e2e;}
-._m{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.5;max-width:88%;font-family:sans-serif;}
-._m.u{background:${cfg.accentColor};color:#000;align-self:flex-end;border-radius:10px 2px 10px 10px;}
-._m.a{background:#1a1a2e;color:#e8e8f0;border:1px solid #1e1e2e;align-self:flex-start;border-radius:2px 10px 10px 10px;}
-#_pi{padding:12px;border-top:1px solid #1e1e2e;background:#111118;display:flex;gap:8px;}
-#_pi input{flex:1;background:#0d0d1a;border:1px solid #1e1e2e;color:#e8e8f0;padding:10px 12px;border-radius:8px;font-size:13px;outline:none;font-family:sans-serif;}
-#_pi input:focus{border-color:${cfg.accentColor};}
-#_pi button{background:${cfg.accentColor};color:#000;border:none;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px;}
-#_pi button:hover{opacity:.85;}
+#_ph{padding:16px 18px;background:#151523;border-bottom:1px solid #2d2d4a;display:flex;align-items:center;justify-content:space-between;}
+#_ph strong{color:#ffffff;font-size:14px;font-weight:700;}
+#_pc{cursor:pointer;background:none;border:none;color:#8a8aaa;font-size:18px;padding:4px 8px;transition:all 0.2s;}
+#_pc:hover{color:#00e5ff;}
+#_pm{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+#_pm::-webkit-scrollbar{width:4px;}
+#_pm::-webkit-scrollbar-track{background:transparent;}
+#_pm::-webkit-scrollbar-thumb{background:#2d2d4a;border-radius:2px;}
+._m{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5;max-width:85%;font-family:'Inter',sans-serif;animation:slideIn 0.3s ease;}
+._m.u{background:${cfg.accentColor};color:#000;align-self:flex-end;border-radius:12px 4px 12px 12px;font-weight:500;}
+._m.a{background:#1a1a2e;color:#ffffff;border:1px solid #2d2d4a;align-self:flex-start;border-radius:4px 12px 12px 12px;}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+#_pi{padding:14px;border-top:1px solid #2d2d4a;background:#151523;display:flex;gap:8px;}
+#_pi input{flex:1;background:#0a0a12;border:1.5px solid #2d2d4a;color:#ffffff;padding:11px 12px;border-radius:10px;font-size:13px;outline:none;font-family:'Inter',sans-serif;transition:all 0.3s;}
+#_pi input:focus{border-color:${cfg.accentColor};box-shadow:0 0 20px rgba(0,229,255,0.15);}
+#_pi button{background:${cfg.accentColor};color:#000;border:none;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:13px;transition:all 0.2s;}
+#_pi button:hover{opacity:0.9;transform:translateY(-1px);}
 </style>
-<button id="_fab" onclick="document.getElementById('_panel').classList.toggle('open')">✦ AI</button>
+<button id="_fab" onclick="document.getElementById('_panel').classList.toggle('open')">✨ AI</button>
 <div id="_panel">
-  <div id="_ph"><strong>${cfg.aiPurpose}</strong><button id="_pc" onclick="document.getElementById('_panel').classList.remove('open')">✕</button></div>
+  <div id="_ph"><strong>${cfg.aiPurpose || 'AI Assistant'}</strong><button id="_pc" onclick="document.getElementById('_panel').classList.remove('open')">✕</button></div>
   <div id="_pm"></div>
   <div id="_pi"><input id="_in" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')_send()"/><button onclick="_send()">Send</button></div>
 </div>
 <script>
 (function(){
   var K='${KEY}';
-  var SP=${JSON.stringify(cfg.aiSystemPrompt)};
+  var SP='${(cfg.aiSystemPrompt || 'You are a helpful assistant.').replace(/'/g, "\\'")}';
   var H=[];
   var pm=document.getElementById('_pm');
   function _add(r,t){var d=document.createElement('div');d.className='_m '+r;d.textContent=t;pm.appendChild(d);pm.scrollTop=pm.scrollHeight;return d;}
@@ -703,16 +822,16 @@ function buildChat(cfg) {
     _add('u',t);H.push({role:'user',content:t});
     var dot=_add('a','...');
     try{
-      var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:800,messages:[{role:'system',content:SP},...H]})});
+      var r=await fetch('/api/groq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:K,model:'llama-3.3-70b-versatile',maxTokens:1000,messages:[{role:'system',content:SP},...H]})});
       var d=await r.json();
       dot.remove();
-      if(d.error){_add('a','Error: '+d.error.message);return;}
+      if(d.error){_add('a','Error: '+d.error);return;}
       var rep=d.choices[0].message.content;
       H.push({role:'assistant',content:rep});
       _add('a',rep);
     }catch(e){dot.remove();_add('a','Connection error.');}
   };
-  _add('a','Hi! I am your ${cfg.aiPurpose}. How can I help?');
+  _add('a','Hi! I am your ${cfg.aiPurpose || 'AI Assistant'}. How can I help?');
 })();
 <\/script>`;
 }
@@ -728,7 +847,7 @@ function exportHTML() {
 
 function mic() {
   if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    alert('Voice not supported. Use Chrome.');
+    alert('Voice not supported. Use Chrome or Edge.');
     return;
   }
   if (recording) {
